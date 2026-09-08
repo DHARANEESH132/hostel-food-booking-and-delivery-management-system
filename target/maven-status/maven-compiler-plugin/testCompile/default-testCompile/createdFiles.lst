@@ -1,0 +1,4 @@
+com\hostelfood\HostelFoodApplicationTests.class
+com\hostelfood\service\DeliveryServiceTest.class
+com\hostelfood\service\UserServiceTest.class
+com\hostelfood\service\VoteServiceTest.class
