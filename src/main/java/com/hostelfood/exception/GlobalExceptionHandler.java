@@ -80,6 +80,31 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, "NoVoteFoundForTokenException", ex.getMessage());
     }
 
+    @ExceptionHandler(PublicRegistrationDisabledException.class)
+    public ResponseEntity<Map<String, Object>> handlePublicRegistrationDisabled(PublicRegistrationDisabledException ex) {
+        return buildErrorResponse(HttpStatus.FORBIDDEN, "PublicRegistrationDisabledException", ex.getMessage());
+    }
+
+    @ExceptionHandler(StudentNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleStudentNotFound(StudentNotFoundException ex) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, "StudentNotFoundException", ex.getMessage());
+    }
+
+    @ExceptionHandler(MealNotConsumedException.class)
+    public ResponseEntity<Map<String, Object>> handleMealNotConsumed(MealNotConsumedException ex) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "MealNotConsumedException", ex.getMessage());
+    }
+
+    @ExceptionHandler(DuplicateFeedbackException.class)
+    public ResponseEntity<Map<String, Object>> handleDuplicateFeedback(DuplicateFeedbackException ex) {
+        return buildErrorResponse(HttpStatus.CONFLICT, "DuplicateFeedbackException", ex.getMessage());
+    }
+
+    @ExceptionHandler(FeedbackNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleFeedbackNotFound(FeedbackNotFoundException ex) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, "FeedbackNotFoundException", ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getFieldErrors().stream()

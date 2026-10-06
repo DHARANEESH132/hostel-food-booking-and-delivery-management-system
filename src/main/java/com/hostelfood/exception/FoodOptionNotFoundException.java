@@ -5,3 +5,4 @@ public class FoodOptionNotFoundException extends RuntimeException {
         super(message);
     }
 }
+

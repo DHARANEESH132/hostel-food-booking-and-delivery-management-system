@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel Food Booking & QR Delivery System</title>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <a href="/" class="brand">
+            <span class="brand-icon">🍲</span>
+            <span>HostelFood SmartMess</span>
+        </a>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
+            Campus Food Booking & QR Logistics
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="auth-hero">
+            <div class="auth-box">
+                <div style="margin-bottom: 1.5rem; text-align: center;">
+                    <span style="font-size: 2.5rem;">🔐</span>
+                    <h2 style="font-size: 1.5rem; font-weight: 700; margin-top: 0.5rem;">Portal Login</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                        Sign in to vote, manage meals, or redeem meal tokens.
+                    </p>
+                </div>
+
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="email">Campus Email</label>
+                        <input type="email" id="email" class="form-control" placeholder="e.g. admin@hostel.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.75rem; padding: 0.8rem;">
+                        Sign In
+                    </button>
+                </form>
+
+                <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border-color); font-size: 0.8rem; color: var(--text-muted);">
+                    <p style="margin-bottom: 0.5rem;">
+                        <strong>Demo Accounts:</strong>
+                    </p>
+                    <button type="button" class="btn btn-outline btn-sm" id="fill-admin-btn" style="width: 100%;">
+                        Fill Admin Credentials (admin@hostel.com)
+                    </button>
+                    <p style="margin-top: 0.75rem; font-size: 0.75rem; color: var(--text-muted);">
+                        ℹ️ <em>Public registration is locked. New students are onboarded by the hostel warden.</em>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="./js/api.js"></script>
+    <script src="./js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // If already logged in, redirect
+            const user = getCurrentUser();
+            const token = localStorage.getItem('token');
+            if (token && user) {
+                window.location.href = user.role === 'ADMIN' ? '/admin.html' : '/student.html';
+                return;
+            }
+
+            // Quick fill admin credentials
+            document.getElementById('fill-admin-btn').addEventListener('click', () => {
+                document.getElementById('email').value = 'admin@hostel.com';
+                document.getElementById('password').value = 'Admin@123';
+            });
+
+            // Handle login form submit
+            document.getElementById('login-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+                await handleLogin(email, password);
+            });
+        });
+    </script>
+</body>
+</html>

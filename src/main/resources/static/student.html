@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal - HostelFood</title>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <header class="navbar">
+        <a href="/student.html" class="brand">
+            <span class="brand-icon">🍲</span>
+            <span>HostelFood Student Hub</span>
+        </a>
+        <div class="nav-user">
+            <div class="user-badge">
+                <span class="user-name" id="nav-user-name">Loading...</span>
+                <span class="user-role badge badge-student" id="nav-user-role">Student</span>
+            </div>
+            <button onclick="logout()" class="btn btn-outline btn-sm">Sign Out</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Tab Navigation -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" onclick="switchStudentTab('meals')">
+                <span>🍽️</span> Active Meals & Voting
+            </button>
+            <button class="tab-btn" onclick="switchStudentTab('dashboard')">
+                <span>📊</span> My Dashboard
+            </button>
+            <button class="tab-btn" onclick="switchStudentTab('history')">
+                <span>📜</span> Dining History
+            </button>
+        </nav>
+
+        <!-- TAB 1: Meals & Voting Hub -->
+        <section id="tab-meals" class="tab-content active">
+            <div class="card-header" style="border: none; padding: 0; margin-bottom: 1.5rem;">
+                <div>
+                    <h2 style="font-size: 1.35rem; font-weight: 700;">Hostel Meals & Menu</h2>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.2rem;">
+                        Cast your meal choice, generate your pickup QR token, and rate your delivered food.
+                    </p>
+                </div>
+                <button onclick="loadStudentMeals()" class="btn btn-outline btn-sm">🔄 Refresh Menu</button>
+            </div>
+
+            <div id="meals-container">
+                <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                    Loading scheduled meals...
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: Student Dashboard -->
+        <section id="tab-dashboard" class="tab-content">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon icon-blue">🗳️</div>
+                    <div>
+                        <div class="kpi-title">Total Votes Cast</div>
+                        <div class="kpi-value" id="kpi-total-votes">0</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon icon-green">🍱</div>
+                    <div>
+                        <div class="kpi-title">Meals Claimed</div>
+                        <div class="kpi-value" id="kpi-meals-claimed">0</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon icon-amber">📱</div>
+                    <div>
+                        <div class="kpi-title">Active QR Tokens</div>
+                        <div class="kpi-value" id="kpi-active-tokens">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><span>💡</span> Smart Hostel Mess Guidelines</h3>
+                </div>
+                <div style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6;">
+                    <p>1. <strong>Pre-meal Voting:</strong> Make sure to vote before the voting window closes so the kitchen cooks your preferred dish.</p>
+                    <p style="margin-top: 0.5rem;">2. <strong>QR Meal Tokens:</strong> Generate your QR code before heading to the mess counter. Show the QR code on your phone screen to the mess staff.</p>
+                    <p style="margin-top: 0.5rem;">3. <strong>Anti-Waste & Quality Feedback:</strong> Once your meal is scanned and collected, please rate the food (1–5 stars) to help the mess committee maintain high food standards.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: Dining History -->
+        <section id="tab-history" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><span>📜</span> My Dining History</h3>
+                    <button onclick="loadStudentHistory(0)" class="btn btn-outline btn-sm">🔄 Refresh</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Meal Type</th>
+                                <th>Selected Dish</th>
+                                <th>Delivery Status</th>
+                                <th>Delivered At</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-tbody">
+                            <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Loading history...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;" id="history-pagination">
+                    <!-- Pagination controls injected here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL: QR Code Meal Token Viewer -->
+    <div class="modal-overlay" id="qr-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title">📱 Meal Token QR Code</h3>
+                <button class="modal-close" onclick="closeModal('qr-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="qr-container">
+                    <img id="qr-modal-image" class="qr-image" src="" alt="Meal Token QR Code">
+                    <div style="margin-bottom: 0.75rem;">
+                        <span class="token-string" id="qr-modal-code">MT-XXXX</span>
+                    </div>
+                    <div style="font-size: 0.95rem; font-weight: 700; color: var(--text-primary);" id="qr-modal-dish">
+                        Dish Name
+                    </div>
+                    <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;" id="qr-modal-meta">
+                        Room: 101 | Block A
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <span class="badge badge-active" id="qr-modal-status">ACTIVE</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="downloadStudentQrCode()">⬇ Download QR</button>
+                <button class="btn btn-primary" onclick="closeModal('qr-modal')">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Submit Post-Meal Feedback -->
+    <div class="modal-overlay" id="feedback-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title">⭐ Rate This Meal</h3>
+                <button class="modal-close" onclick="closeModal('feedback-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="feedback-meal-id">
+                <div style="text-align: center; margin-bottom: 1rem;">
+                    <div style="font-size: 0.9rem; color: var(--text-secondary);" id="feedback-meal-title">
+                        Meal Feedback
+                    </div>
+                    <!-- 5 Star interactive widget -->
+                    <div class="star-rating" id="star-rating-box">
+                        <span data-star="1">★</span>
+                        <span data-star="2">★</span>
+                        <span data-star="3">★</span>
+                        <span data-star="4">★</span>
+                        <span data-star="5">★</span>
+                    </div>
+                    <div style="font-size: 0.8rem; font-weight: 600; color: var(--primary);" id="star-rating-text">
+                        Select a star rating (1 to 5)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="feedback-category">Feedback Category</label>
+                    <select id="feedback-category" class="form-control" required>
+                        <option value="TASTE">Taste & Flavor</option>
+                        <option value="QUANTITY">Quantity / Portion Size</option>
+                        <option value="HYGIENE">Hygiene & Cleanliness</option>
+                        <option value="PUNCTUALITY">Punctuality of Service</option>
+                        <option value="GENERAL">General Experience</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="feedback-comment">Comments (Optional)</label>
+                    <textarea id="feedback-comment" class="form-control" rows="3" maxlength="500" placeholder="Was the food fresh? Any suggestions for the mess chef?"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('feedback-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="submitMealFeedback()">Submit Feedback</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/api.js"></script>
+    <script src="./js/auth.js"></script>
+    <script src="./js/student.js"></script>
+</body>
+</html>

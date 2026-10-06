@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin & Mess Staff Portal - HostelFood</title>
+    <link rel="stylesheet" href="./css/styles.css">
+</head>
+<body>
+
+    <!-- Header / Navbar -->
+    <header class="navbar">
+        <a href="/admin.html" class="brand">
+            <span class="brand-icon">🛡️</span>
+            <span>HostelFood Admin Portal</span>
+        </a>
+        <div class="nav-user">
+            <div class="user-badge">
+                <span class="user-name" id="nav-user-name">Hostel Warden</span>
+                <span class="user-role badge badge-admin" id="nav-user-role">Administrator</span>
+            </div>
+            <button onclick="logout()" class="btn btn-outline btn-sm">Sign Out</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Tab Navigation -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" onclick="switchAdminTab('dashboard')">
+                <span>📊</span> Dashboard
+            </button>
+            <button class="tab-btn" onclick="switchAdminTab('scanner')">
+                <span>📱</span> QR Counter Scanner
+            </button>
+            <button class="tab-btn" onclick="switchAdminTab('meals')">
+                <span>🍽️</span> Meals & Menu
+            </button>
+            <button class="tab-btn" onclick="switchAdminTab('demand')">
+                <span>📈</span> Kitchen Demand Forecast
+            </button>
+            <button class="tab-btn" onclick="switchAdminTab('students')">
+                <span>👥</span> Student Roster
+            </button>
+            <button class="tab-btn" onclick="switchAdminTab('feedback')">
+                <span>⭐</span> Quality Feedback
+            </button>
+            <button class="tab-btn" onclick="switchAdminTab('reports')">
+                <span>📑</span> Wastage Reports
+            </button>
+            <button class="tab-btn" onclick="switchAdminTab('deliveries')">
+                <span>📜</span> Delivery Logs
+            </button>
+        </nav>
+
+        <!-- TAB 1: Dashboard KPIs -->
+        <section id="tab-dashboard" class="tab-content active">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon icon-blue">👥</div>
+                    <div>
+                        <div class="kpi-title">Total Registered Students</div>
+                        <div class="kpi-value" id="kpi-total-students">0</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon icon-green">🍱</div>
+                    <div>
+                        <div class="kpi-title">Delivered Meals Today</div>
+                        <div class="kpi-value" id="kpi-today-deliveries">0</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon icon-amber">🍽️</div>
+                    <div>
+                        <div class="kpi-title">Today's Scheduled Meals</div>
+                        <div class="kpi-value" id="kpi-today-meals">0</div>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon icon-rose">⏰</div>
+                    <div>
+                        <div class="kpi-title">Active Voting Windows</div>
+                        <div class="kpi-value" id="kpi-active-voting">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><span>⚡</span> Quick Management Actions</h3>
+                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                    <button class="btn btn-primary" onclick="switchAdminTab('scanner')">📱 Open QR Delivery Scanner</button>
+                    <button class="btn btn-outline" onclick="switchAdminTab('meals')">➕ Schedule New Meal</button>
+                    <button class="btn btn-outline" onclick="switchAdminTab('demand')">📊 Check Kitchen Demand</button>
+                    <button class="btn btn-outline" onclick="switchAdminTab('students')">👤 Onboard New Student</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: QR Counter Scanner & Delivery -->
+        <section id="tab-scanner" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><span>📱</span> Mess Counter Scanner & Verification</h3>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+                    Scan the student's QR code via image file upload, live device camera, or token code to verify meal eligibility.
+                </p>
+
+                <!-- Scanner Mode Tabs -->
+                <div class="scanner-mode-tabs">
+                    <button type="button" class="btn btn-primary" id="btn-mode-image" onclick="setScannerMode('image')">
+                        🖼️ Scan QR Image File
+                    </button>
+                    <button type="button" class="btn btn-outline" id="btn-mode-camera" onclick="setScannerMode('camera')">
+                        📷 Scan with Camera
+                    </button>
+                    <button type="button" class="btn btn-outline" id="btn-mode-manual" onclick="setScannerMode('manual')">
+                        ⌨️ Manual Code Entry
+                    </button>
+                </div>
+
+                <!-- MODE 1: QR Image Upload & Drag-and-Drop -->
+                <div id="scanner-image-section">
+                    <div id="qr-dropzone" class="qr-dropzone" onclick="document.getElementById('qr-file-input').click()">
+                        <input type="file" id="qr-file-input" accept="image/*" style="display: none;" onchange="handleQrImageUpload(this.files)">
+                        <div class="dropzone-icon">📸</div>
+                        <div class="dropzone-title">Click to upload or Drag & Drop Student QR Image</div>
+                        <div class="dropzone-sub">
+                            Supports PNG, JPG, JPEG, WEBP, or paste directly with <kbd>Ctrl + V</kbd>
+                        </div>
+                    </div>
+
+                    <!-- Image Preview Box -->
+                    <div id="image-scan-preview-box" class="image-preview-wrapper" style="display: none;">
+                        <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.5rem;">Uploaded QR Image:</div>
+                        <img id="image-scan-preview" class="image-preview-thumb" src="" alt="Uploaded QR Code">
+                        <div style="margin-top: 0.75rem;">
+                            <button type="button" class="btn btn-outline btn-sm" onclick="resetImageScanner()">Scan Another Image</button>
+                        </div>
+                    </div>
+
+                    <!-- Hidden Container for Html5Qrcode File Decoder -->
+                    <div id="qr-file-decoder" style="display: none;"></div>
+                </div>
+
+                <!-- MODE 2: Live Camera Video Scanner -->
+                <div id="scanner-camera-section" style="display: none;">
+                    <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap;">
+                        <button type="button" class="btn btn-primary" id="btn-start-camera" onclick="startCameraScanner()">
+                            📷 Start Camera
+                        </button>
+                        <button type="button" class="btn btn-outline" id="btn-stop-camera" onclick="stopCameraScanner()" style="display: none;">
+                            ⏹ Stop Camera
+                        </button>
+                        <select id="camera-select" class="form-control" style="max-width: 250px; display: none;" onchange="onCameraSelectChange()">
+                            <!-- Available video devices -->
+                        </select>
+                    </div>
+
+                    <div id="camera-scanner-view-container" class="camera-scanner-wrapper" style="display: none;">
+                        <div id="camera-reader"></div>
+                    </div>
+                    <p id="camera-instruction" style="font-size: 0.85rem; color: var(--text-muted); text-align: center; max-width: 480px;">
+                        Point your camera at the student's meal token QR code on their phone screen.
+                    </p>
+                </div>
+
+                <!-- MODE 3: Manual Code Entry Fallback -->
+                <div id="scanner-manual-section" style="display: none;">
+                    <form id="scan-form" onsubmit="event.preventDefault(); scanQrToken();" style="display: flex; gap: 0.75rem; max-width: 500px;">
+                        <input type="text" id="scanner-token-input" class="form-control" placeholder="Type Token Code (e.g. MT-XXXX)" autofocus>
+                        <button type="submit" class="btn btn-primary">Verify Code</button>
+                    </form>
+                </div>
+
+                <!-- Scanned Token Feedback Banner -->
+                <div id="scanned-token-indicator" class="scanned-token-card" style="display: none;">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Scanned Token:</span>
+                    <span id="detected-token-badge" class="token-string" style="font-size: 0.95rem;">MT-XXXX</span>
+                    <button type="button" class="btn btn-outline btn-sm" onclick="clearScannedToken()" style="margin-left: auto;">✕ Clear</button>
+                </div>
+
+                <!-- Verification Result Card -->
+                <div id="scan-result-card" style="display: none; border-top: 1px solid var(--border-color); padding-top: 1.5rem; margin-top: 1.5rem;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Student Name</div>
+                            <div style="font-size: 1.15rem; font-weight: 700;" id="scan-student-name">—</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary);" id="scan-student-id">ST001</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Hostel / Room</div>
+                            <div style="font-size: 1.05rem; font-weight: 600;" id="scan-hostel-room">—</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Chosen Dish</div>
+                            <div style="font-size: 1.15rem; font-weight: 700; color: var(--primary);" id="scan-dish-name">—</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Token Status</div>
+                            <div id="scan-status-badge">
+                                <span class="badge badge-active">ACTIVE</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="max-width: 400px;">
+                        <label for="delivery-notes">Optional Delivery Notes</label>
+                        <input type="text" id="delivery-notes" class="form-control" placeholder="e.g. Extra salad served">
+                    </div>
+
+                    <button class="btn btn-success" id="confirm-delivery-btn" onclick="confirmDeliveryAction()">
+                        ✓ Confirm Meal Handover
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: Meals & Menu Management -->
+        <section id="tab-meals" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><span>➕</span> Schedule a New Meal</h3>
+                </div>
+                <form id="create-meal-form" onsubmit="event.preventDefault(); handleCreateMeal();">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="meal-date">Date</label>
+                            <input type="date" id="meal-date" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="meal-type">Meal Type</label>
+                            <select id="meal-type" class="form-control" required>
+                                <option value="BREAKFAST">BREAKFAST</option>
+                                <option value="LUNCH">LUNCH</option>
+                                <option value="DINNER">DINNER</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="voting-start">Voting Start Time</label>
+                            <input type="datetime-local" id="voting-start" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="voting-end">Voting End Time</label>
+                            <input type="datetime-local" id="voting-end" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="delivery-start">Delivery Start Time</label>
+                            <input type="datetime-local" id="delivery-start" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="delivery-end">Delivery End Time</label>
+                            <input type="datetime-local" id="delivery-end" class="form-control" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">Schedule Meal</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><span>🍽️</span> Scheduled Meals</h3>
+                    <button onclick="loadAdminMeals()" class="btn btn-outline btn-sm">🔄 Refresh List</button>
+                </div>
+                <div id="admin-meals-container">
+                    <div style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading meals...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: Kitchen Demand Forecasting -->
+        <section id="tab-demand" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><span>📊</span> Live Kitchen Demand Forecasting</h3>
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
+                    <label for="demand-meal-select" style="font-weight: 600; font-size: 0.9rem;">Select Meal:</label>
+                    <select id="demand-meal-select" class="form-control" style="max-width: 350px;" onchange="loadDemandForSelectedMeal()">
+                        <option value="">-- Choose Meal --</option>
+                    </select>
+                </div>
+
+                <div id="demand-results">
+                    <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                        Select a meal to view portion requirements and percentages for the kitchen staff.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: Student Roster & Onboarding -->
+        <section id="tab-students" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><span>👤</span> Onboard New Student</h3>
+                </div>
+                <form id="create-student-form" onsubmit="event.preventDefault(); handleOnboardStudent();">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="st-name">Student Full Name</label>
+                            <input type="text" id="st-name" class="form-control" placeholder="e.g. Dharaneesh" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="st-id">Student ID / Roll No.</label>
+                            <input type="text" id="st-id" class="form-control" placeholder="e.g. ST001" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="st-email">Campus Email</label>
+                            <input type="email" id="st-email" class="form-control" placeholder="e.g. dharaneesh@college.edu" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="st-hostel">Hostel Block</label>
+                            <input type="text" id="st-hostel" class="form-control" placeholder="e.g. Block A" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="st-room">Room Number</label>
+                            <input type="text" id="st-room" class="form-control" placeholder="e.g. 204" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="st-password">Password (Optional)</label>
+                            <input type="text" id="st-password" class="form-control" placeholder="Default: <StudentId>@123">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">Onboard Resident</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><span>👥</span> Registered Student Roster</h3>
+                    <button onclick="loadAdminStudents(0)" class="btn btn-outline btn-sm">🔄 Refresh</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Hostel Block</th>
+                                <th>Room</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="students-tbody">
+                            <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading students...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;" id="students-pagination"></div>
+            </div>
+        </section>
+
+        <!-- TAB 6: Quality Feedback & Analytics -->
+        <section id="tab-feedback" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><span>⭐</span> Meal Satisfaction & Quality Analytics</h3>
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
+                    <label for="feedback-meal-select" style="font-weight: 600; font-size: 0.9rem;">Select Meal:</label>
+                    <select id="feedback-meal-select" class="form-control" style="max-width: 350px;" onchange="loadFeedbackForSelectedMeal()">
+                        <option value="">-- Choose Meal --</option>
+                    </select>
+                </div>
+
+                <div id="feedback-results">
+                    <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                        Select a meal to view star ratings, histograms, and student review comments.
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><span>📜</span> Global Feedback Audit Stream</h3>
+                    <button onclick="loadGlobalFeedbacks(0)" class="btn btn-outline btn-sm">🔄 Refresh Feed</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Meal Type</th>
+                                <th>Student</th>
+                                <th>Dish</th>
+                                <th>Rating</th>
+                                <th>Category</th>
+                                <th>Comment</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="global-feedback-tbody">
+                            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Loading global feedback...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;" id="global-feedback-pagination"></div>
+            </div>
+        </section>
+
+        <!-- TAB 7: Wastage & Consumption Reports -->
+        <section id="tab-reports" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><span>📑</span> Meal Consumption & Food Wastage Report</h3>
+                </div>
+                <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1.5rem;">
+                    <label for="reports-meal-select" style="font-weight: 600; font-size: 0.9rem;">Select Meal:</label>
+                    <select id="reports-meal-select" class="form-control" style="max-width: 350px;" onchange="loadWastageReportForMeal()">
+                        <option value="">-- Choose Meal --</option>
+                    </select>
+                </div>
+
+                <div id="report-results">
+                    <div style="text-align: center; color: var(--text-muted); padding: 2rem;">
+                        Select a meal to compare prepared portions against actual meals claimed and compute food waste.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 8: Delivery Logs Audit -->
+        <section id="tab-deliveries" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><span>📜</span> Completed Delivery Audit Logs</h3>
+                    <button onclick="loadDeliveriesLog(0)" class="btn btn-outline btn-sm">🔄 Refresh</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Token Code</th>
+                                <th>Student</th>
+                                <th>Hostel/Room</th>
+                                <th>Meal Type</th>
+                                <th>Dish Served</th>
+                                <th>Staff Member</th>
+                                <th>Delivered At</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="deliveries-tbody">
+                            <tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Loading deliveries...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;" id="deliveries-pagination"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL: Add Food Option to Meal -->
+    <div class="modal-overlay" id="add-dish-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title">🍲 Add Dish to Meal</h3>
+                <button class="modal-close" onclick="closeModal('add-dish-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="modal-dish-meal-id">
+                <div class="form-group">
+                    <label for="modal-dish-name">Dish Name</label>
+                    <input type="text" id="modal-dish-name" class="form-control" placeholder="e.g. Paneer Butter Masala" required>
+                </div>
+                <div class="form-group">
+                    <label for="modal-dish-desc">Description</label>
+                    <input type="text" id="modal-dish-desc" class="form-control" placeholder="e.g. Served with butter naan and salad">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeModal('add-dish-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="handleAddDishSubmit()">Add Dish</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/html5-qrcode.min.js"></script>
+    <script src="./js/api.js"></script>
+    <script src="./js/auth.js"></script>
+    <script src="./js/admin.js"></script>
+</body>
+</html>

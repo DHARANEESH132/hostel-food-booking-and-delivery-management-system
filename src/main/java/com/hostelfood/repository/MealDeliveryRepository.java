@@ -17,6 +17,10 @@ public interface MealDeliveryRepository extends JpaRepository<MealDelivery, Long
 
     Optional<MealDelivery> findByMealTokenId(Long mealTokenId);
 
+    boolean existsByUserIdAndMealId(Long userId, Long mealId);
+
+    Optional<MealDelivery> findByUserIdAndMealId(Long userId, Long mealId);
+
     List<MealDelivery> findByUserIdOrderByDeliveredAtDesc(Long userId);
 
     Page<MealDelivery> findByUserId(Long userId, Pageable pageable);
